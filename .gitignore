@@ -36,3 +36,4 @@ terraform.rc
 
 # Ignore .DS_Sotre file on Mac
 .DS_Store
+*.code-workspace
