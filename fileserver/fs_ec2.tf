@@ -9,9 +9,12 @@ resource "aws_instance" "fileserver_web_server" {
 
   user_data = <<-EOF
   #! /bin/bash
+  sudo yum update -y
+  sudo yum install man-pages-ja -y
   sudo timedatectl set-timezone Asia/Tokyo
-  sudo localectl set-locale LANG=ja_JP.utf8
+  sudo localectl set-locale LANG=ja_JP.UTF-8
   source /etc/locale.conf
+
   sudo yum install -y httpd mod_dav_fs
   sudo mkdir -p /var/lib/dav
   sudo chown -R apache:apache /var/lib/dav
@@ -26,6 +29,7 @@ resource "aws_instance" "fileserver_web_server" {
   echo '    AuthType None' | sudo tee -a /etc/httpd/conf.d/webdav.conf
   echo '    Require all granted' | sudo tee -a /etc/httpd/conf.d/webdav.conf
   echo '</Directory>' | sudo tee -a /etc/httpd/conf.d/webdav.conf
+
   sudo systemctl restart httpd
 EOF
 
