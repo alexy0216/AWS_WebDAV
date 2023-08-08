@@ -1,3 +1,21 @@
+# awsプロバイダの設定
+provider "aws" {
+  region = "ap-northeast-1"
+}
+
+# HTTPプロバイダの設定
+provider "http" {}
+
+# 自端末のパブリックIPを取得
+data "http" "my_public_ip" {
+  url = "https://ipv4.icanhazip.com/"
+}
+
+# 自端末のパブリックIP（CIDR形式）
+locals {
+  my_public_ip_cidr = "${trimspace(data.http.my_public_ip.response_body)}/32"
+}
+
 # ファイルサーバ用VPCの作成
 resource "aws_vpc" "fileserver_vpc" {
   cidr_block           = "10.0.0.0/16"

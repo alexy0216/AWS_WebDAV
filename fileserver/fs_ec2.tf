@@ -35,3 +35,7 @@ EOF
 
 
 }
+
+output "public_ip" {
+  value = "Fileserver URL is: http://${aws_instance.fileserver_web_server.public_ip}/webdav"
+}

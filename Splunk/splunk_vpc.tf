@@ -1,3 +1,18 @@
+# awsプロバイダの設定
+provider "aws" {
+  region = "ap-northeast-1"
+}
+
+# 自端末のパブリックIPを取得
+data "http" "my_public_ip" {
+  url = "https://ipv4.icanhazip.com/"
+}
+
+# 自端末のパブリックIP（CIDR形式）
+locals {
+  my_public_ip_cidr = "${trimspace(data.http.my_public_ip.response_body)}/32"
+}
+
 # Splunk用VPC
 resource "aws_vpc" "splunk_vpc" {
   cidr_block           = "10.1.0.0/16"
