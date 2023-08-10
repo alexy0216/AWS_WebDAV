@@ -48,8 +48,10 @@ gitを使用する際にはZScalerはoffにしてください。さもなけれ�
 (初回のみ)
 git clone https://github.com/alexy0216/AWS_WebDAV.git
 
-cd aws-webdav/fileserver
+cd aws-webdav/
+
 git pull
+
 terraform init -upgrade
 
 (初回のみ)
@@ -58,6 +60,8 @@ terraform workspace new <分かりやすいworkspace名 (ws-fileserver、とか)
 export AWS_ACCESS_KEY_ID="<アクセスキーID>"
 
 export AWS_SECRET_ACCESS_KEY="<シークレットアクセスキー>"
+
+cd ./fileserver
 
 （一応実行してエラーが出ないのを確認）
 terraform plan
