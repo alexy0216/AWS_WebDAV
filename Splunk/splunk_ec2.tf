@@ -18,7 +18,3 @@ EOF
 
 
 }
-
-output "public_ip" {
-  value = "ec2-user@${aws_instance.splunk_server.public_ip}"
-}
