@@ -1,3 +1,8 @@
+# ！変更推奨！パスワード（ハッシュ値）
+variable "encoded_password" {
+  default = ":$2y$10$H56m.GlpN3F1VzQpSC9zoefQtyTNdqA.Z0wExeU9p7qWzefNixv1i"  # htpasswd -bnBC 10 "" password の結果を設定
+}
+
 # EC2インスタンスの作成
 resource "aws_instance" "fileserver_web_server" {
   ami                    = "ami-0e25eba2025eea319" # Amazon Linux 2 Kernel 5.10 AMI 2.0.20230727.0 x86_64 HVM gp2
@@ -15,25 +20,44 @@ resource "aws_instance" "fileserver_web_server" {
   sudo localectl set-locale LANG=ja_JP.UTF-8
   source /etc/locale.conf
 
+  # apacheの構築と設定
   sudo yum install -y httpd mod_dav_fs
   sudo mkdir -p /var/lib/dav
   sudo chown -R apache:apache /var/lib/dav
   sudo systemctl start httpd
   sudo systemctl enable httpd
+  sudo sed -i 's/AddDefaultCharset UTF-8/AddDefaultCharset Off/' /etc/httpd/conf/httpd.conf
+
+  # webdav.confの設定を追加
   sudo mkdir /var/www/html/webdav
   sudo chown -R apache:apache /var/www/html/webdav
-  echo 'Alias /webdav /var/www/html/webdav' | sudo tee -a /etc/httpd/conf.d/webdav.conf
-  echo 'DAVLockDB /var/lib/dav/lockdb' | sudo tee -a /etc/httpd/conf.d/webdav.conf
-  echo '<Directory /var/www/html/webdav>' | sudo tee -a /etc/httpd/conf.d/webdav.conf
-  echo '    DAV On' | sudo tee -a /etc/httpd/conf.d/webdav.conf
-  echo '    AuthType None' | sudo tee -a /etc/httpd/conf.d/webdav.conf
-  echo '    Require all granted' | sudo tee -a /etc/httpd/conf.d/webdav.conf
-  echo '</Directory>' | sudo tee -a /etc/httpd/conf.d/webdav.conf
+  sudo bash -c 'cat << CONF > /etc/httpd/conf.d/webdav.conf
+  Alias /webdav /var/www/html/webdav
+  DAVLockDB /var/lib/dav/lockdb
+  <Directory /var/www/html/webdav>
+    DAV On
+    AuthType None
+    Require all granted
+    </Directory>
+  CONF'
+
+  # .htaccessファイルの作成とBasic認証の設定を追加
+  sudo bash -c 'cat << CONF > /var/www/html/webdav/.htaccess
+  AuthType Basic
+  AuthName "Restricted Area"
+  AuthUserFile /etc/httpd/.htpasswd
+  Require valid-user
+  CONF'
+
+  # エンコードされたパスワードを.htpasswdファイルに追加
+  echo 'WSuser{var.encoded_password}' | sudo tee -a /etc/httpd/.htpasswd
+
+  # .htaccessを有効化
+  # sudo sed -i "/<Directory \"/var/www/html\">/,/</Directory>/ s/AllowOverride None/AllowOverride All/" /etc/httpd/conf/httpd.conf
 
   sudo systemctl restart httpd
-EOF
 
-
+  EOF
 }
 
 output "public_ip" {
