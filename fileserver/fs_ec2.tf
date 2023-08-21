@@ -2,7 +2,7 @@
 resource "aws_instance" "fileserver_web_server" {
   ami                    = "ami-044dbe71ee2d3c59e" # Amazon Linux 2 Kernel 5.10 AMI 2.0.20230808.0 x86_64 HVM gp2
   # ami                    = "ami-0e25eba2025eea319" # Amazon Linux 2 Kernel 5.10 AMI 2.0.20230727.0 x86_64 HVM gp2
-  instance_type          = "t2.micro"
+  instance_type          = "t2.large"
   subnet_id              = aws_subnet.fileserver_subnet.id
   vpc_security_group_ids = [aws_security_group.fileserver_sg.id]
 
