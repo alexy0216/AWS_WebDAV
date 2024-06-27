@@ -67,7 +67,7 @@ resource "aws_security_group" "fileserver_sg" {
     from_port   = 80 # HTTP
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = [local.my_public_ip_cidr]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
